@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+import secrets
 
 router = APIRouter()
 
@@ -11,9 +12,8 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# Fake user database
+# Pre-computed hash for "password123"
 fake_users_db = {
     "xylon": {
         "username": "xylon",
@@ -37,7 +37,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), response: Response = None):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -46,14 +46,40 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": user["username"]},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    csrf_token = secrets.token_hex(16)
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # set True with HTTPS
+        samesite="strict",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    response.set_cookie(
+        key="csrf_token",
+        value=csrf_token,
+        httponly=False,
+        secure=False,
+        samesite="strict"
+    )
+    return {"message": "Login successful"}
 
 @router.post("/logout")
-def logout():
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    response.delete_cookie("csrf_token")
     return {"message": "Logged out"}
 
-@router.get("/protected")
-def protected_route(token: str = Depends(oauth2_scheme)):
+@router.post("/protected")
+def protected_route(request: Request):
+    token = request.cookies.get("access_token")
+    csrf_cookie = request.cookies.get("csrf_token")
+    csrf_header = request.headers.get("X-CSRF-Token")
+
+    if not token or not csrf_cookie or csrf_cookie != csrf_header:
+        raise HTTPException(status_code=403, detail="CSRF validation failed")
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -61,4 +87,16 @@ def protected_route(token: str = Depends(oauth2_scheme)):
             raise HTTPException(status_code=401, detail="Invalid token")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return {"message": f"Hello {username}, you accessed a protected route!"}
+
+    return {"message": f"Hello {username}, CSRF check passed!"}
+
+@router.get("/session")
+def check_session(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return {"authenticated": False}
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"authenticated": True, "username": payload.get("sub")}
+    except JWTError:
+        return {"authenticated": False}
