@@ -62,7 +62,7 @@
         async login() {
           this.error = null
           try {
-            const res = await fetch("http://127.0.0.1:8000/login", {
+            const res = await fetch("/login", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: new URLSearchParams({ username: this.username, password: this.password })
@@ -70,18 +70,18 @@
             if (!res.ok) throw new Error("Invalid credentials")
             const data = await res.json()
             this.token = data.access_token
-            localStorage.setItem("token", this.token)   // persist token
+            localStorage.setItem("token", this.token)
           } catch (err) { this.error = err.message }
         },
         async fetchProtected() {
-          const res = await fetch("http://127.0.0.1:8000/protected", {
+          const res = await fetch("/protected", {
             headers: { Authorization: `Bearer ${this.token}` }
           })
           this.message = res.ok ? (await res.json()).message : "Access denied"
         },
         logout() {
           this.token = null
-          localStorage.removeItem("token")             // clear token
+          localStorage.removeItem("token")
           this.message = null
           this.password = ''
         }

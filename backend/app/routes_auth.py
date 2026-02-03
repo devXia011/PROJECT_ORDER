@@ -10,7 +10,7 @@ SECRET_KEY = "supersecretkey"  # use env var in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")  # safer than bcrypt
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # Fake user database
@@ -50,7 +50,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @router.post("/logout")
 def logout():
-    return {"message": "Logged out"}  # JWT is stateless; client clears token
+    return {"message": "Logged out"}
 
 @router.get("/protected")
 def protected_route(token: str = Depends(oauth2_scheme)):
