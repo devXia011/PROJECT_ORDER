@@ -6,32 +6,43 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div id="app" class="w-full max-w-md p-6 bg-white rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">JWT Auth Demo</h1>
-
-    <div v-if="!token">
-      <input v-model="username" type="text" placeholder="Username"
-             class="w-full p-2 mb-3 border rounded" />
-      <input v-model="password" type="password" placeholder="Password"
-             class="w-full p-2 mb-3 border rounded" />
-      <button @click="login"
-              class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
-        Login
-      </button>
-      <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
-    </div>
-
-    <div v-else>
-      <button @click="fetchProtected"
-              class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 mb-3">
-        Access Protected Route
-      </button>
-      <p v-if="message" class="text-gray-700">{{ message }}</p>
-      <button @click="logout"
-              class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 mt-4">
+<body class="bg-gray-100 min-h-screen">
+  <div id="app">
+    <!-- Navigation Bar -->
+    <nav v-if="token" class="bg-blue-600 text-white p-4 flex justify-between">
+      <span class="font-bold">My Web App</span>
+      <span>Welcome, {{ username }}</span>
+      <button @click="logout" class="bg-red-500 px-3 py-1 rounded hover:bg-red-600">
         Logout
       </button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex items-center justify-center min-h-screen">
+      <!-- Login Form -->
+      <div v-if="!token" class="w-full max-w-md p-6 bg-white rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Login</h1>
+        <input v-model="username" type="text" placeholder="Username"
+               class="w-full p-2 mb-3 border rounded" />
+        <input v-model="password" type="password" placeholder="Password"
+               class="w-full p-2 mb-3 border rounded" />
+        <button @click="login"
+                class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+          Login
+        </button>
+        <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
+      </div>
+
+      <!-- Profile Page -->
+      <div v-else class="w-full max-w-lg p-6 bg-white rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Profile Page</h1>
+        <p class="text-gray-700 mb-4">You are logged in as <strong>{{ username }}</strong>.</p>
+        <button @click="fetchProtected"
+                class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+          Access Protected Route
+        </button>
+        <p v-if="message" class="mt-4 text-gray-700">{{ message }}</p>
+      </div>
     </div>
   </div>
 
@@ -39,7 +50,13 @@
     const { createApp } = Vue
     createApp({
       data() {
-        return { username: '', password: '', token: null, error: null, message: null }
+        return {
+          username: '',
+          password: '',
+          token: localStorage.getItem("token") || null,
+          error: null,
+          message: null
+        }
       },
       methods: {
         async login() {
@@ -53,6 +70,7 @@
             if (!res.ok) throw new Error("Invalid credentials")
             const data = await res.json()
             this.token = data.access_token
+            localStorage.setItem("token", this.token)   // persist token
           } catch (err) { this.error = err.message }
         },
         async fetchProtected() {
@@ -61,7 +79,12 @@
           })
           this.message = res.ok ? (await res.json()).message : "Access denied"
         },
-        logout() { this.token = null; this.message = null }
+        logout() {
+          this.token = null
+          localStorage.removeItem("token")             // clear token
+          this.message = null
+          this.password = ''
+        }
       }
     }).mount('#app')
   </script>
