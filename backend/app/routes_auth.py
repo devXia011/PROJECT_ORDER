@@ -4,22 +4,16 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
-# Router for authentication
 router = APIRouter()
 
-# Secret key for JWT (use env variable in production!)
-SECRET_KEY = "supersecretkey"
+SECRET_KEY = "supersecretkey"  # use env var in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Password hashing
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
-
-
-# OAuth2 scheme
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")  # safer than bcrypt
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# Fake user database (replace with real DB)
+# Fake user database
 fake_users_db = {
     "xylon": {
         "username": "xylon",
@@ -42,8 +36,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# ---------------- ROUTES ---------------- #
-
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
@@ -58,9 +50,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @router.post("/logout")
 def logout():
-    # JWT is stateless — "logout" is usually handled client-side
-    # You can implement token blacklisting if needed
-    return {"message": "Successfully logged out"}
+    return {"message": "Logged out"}  # JWT is stateless; client clears token
 
 @router.get("/protected")
 def protected_route(token: str = Depends(oauth2_scheme)):

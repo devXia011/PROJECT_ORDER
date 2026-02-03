@@ -2,18 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FastAPI JWT Demo</title>
-  <!-- Tailwind via CDN -->
+  <title>JWT Auth Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Vue 3 via CDN -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-
   <div id="app" class="w-full max-w-md p-6 bg-white rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">FastAPI JWT Demo</h1>
+    <h1 class="text-2xl font-bold mb-4">JWT Auth Demo</h1>
 
-    <!-- Login Form -->
     <div v-if="!token">
       <input v-model="username" type="text" placeholder="Username"
              class="w-full p-2 mb-3 border rounded" />
@@ -26,7 +22,6 @@
       <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
     </div>
 
-    <!-- Protected Area -->
     <div v-else>
       <button @click="fetchProtected"
               class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 mb-3">
@@ -42,16 +37,9 @@
 
   <script>
     const { createApp } = Vue
-
     createApp({
       data() {
-        return {
-          username: '',
-          password: '',
-          token: null,
-          error: null,
-          message: null
-        }
+        return { username: '', password: '', token: null, error: null, message: null }
       },
       methods: {
         async login() {
@@ -60,34 +48,20 @@
             const res = await fetch("http://127.0.0.1:8000/login", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({
-                username: this.username,
-                password: this.password
-              })
+              body: new URLSearchParams({ username: this.username, password: this.password })
             })
             if (!res.ok) throw new Error("Invalid credentials")
             const data = await res.json()
             this.token = data.access_token
-          } catch (err) {
-            this.error = err.message
-          }
+          } catch (err) { this.error = err.message }
         },
         async fetchProtected() {
-          try {
-            const res = await fetch("http://127.0.0.1:8000/protected", {
-              headers: { Authorization: `Bearer ${this.token}` }
-            })
-            if (!res.ok) throw new Error("Access denied")
-            const data = await res.json()
-            this.message = data.message
-          } catch (err) {
-            this.message = err.message
-          }
+          const res = await fetch("http://127.0.0.1:8000/protected", {
+            headers: { Authorization: `Bearer ${this.token}` }
+          })
+          this.message = res.ok ? (await res.json()).message : "Access denied"
         },
-        logout() {
-          this.token = null
-          this.message = null
-        }
+        logout() { this.token = null; this.message = null }
       }
     }).mount('#app')
   </script>
