@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FastAPI JWT Demo</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 via CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div id="app" class="w-full max-w-md p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">FastAPI JWT Demo</h1>
+
+    <!-- Login Form -->
+    <div v-if="!token">
+      <input v-model="username" type="text" placeholder="Username"
+             class="w-full p-2 mb-3 border rounded" />
+      <input v-model="password" type="password" placeholder="Password"
+             class="w-full p-2 mb-3 border rounded" />
+      <button @click="login"
+              class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+        Login
+      </button>
+      <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
+    </div>
+
+    <!-- Protected Area -->
+    <div v-else>
+      <button @click="fetchProtected"
+              class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 mb-3">
+        Access Protected Route
+      </button>
+      <p v-if="message" class="text-gray-700">{{ message }}</p>
+      <button @click="logout"
+              class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 mt-4">
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          username: '',
+          password: '',
+          token: null,
+          error: null,
+          message: null
+        }
+      },
+      methods: {
+        async login() {
+          this.error = null
+          try {
+            const res = await fetch("http://127.0.0.1:8000/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                username: this.username,
+                password: this.password
+              })
+            })
+            if (!res.ok) throw new Error("Invalid credentials")
+            const data = await res.json()
+            this.token = data.access_token
+          } catch (err) {
+            this.error = err.message
+          }
+        },
+        async fetchProtected() {
+          try {
+            const res = await fetch("http://127.0.0.1:8000/protected", {
+              headers: { Authorization: `Bearer ${this.token}` }
+            })
+            if (!res.ok) throw new Error("Access denied")
+            const data = await res.json()
+            this.message = data.message
+          } catch (err) {
+            this.message = err.message
+          }
+        },
+        logout() {
+          this.token = null
+          this.message = null
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
