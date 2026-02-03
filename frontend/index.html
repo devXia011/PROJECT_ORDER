@@ -2,46 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Secure JWT Cookie Auth Demo</title>
+  <title>Auth Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-  <div id="app">
-    <nav v-if="loggedIn" class="bg-blue-600 text-white p-4 flex justify-between">
-      <span class="font-bold">My Web App</span>
-      <span>Welcome, {{ username }}</span>
-      <button @click="logout" class="bg-red-500 px-3 py-1 rounded hover:bg-red-600">
-        Logout
-      </button>
+<body class="bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 min-h-screen flex flex-col">
+  <div id="app" class="flex flex-col flex-1">
+    <!-- Navbar -->
+    <nav v-if="loggedIn" class="bg-indigo-600 text-white shadow-md transition">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <span class="text-lg font-semibold">My Web App</span>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm">Welcome, {{ username }}</span>
+          <button @click="logout"
+                  class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm font-medium transition transform hover:scale-105">
+            Logout
+          </button>
+        </div>
+      </div>
     </nav>
 
-    <div class="flex items-center justify-center min-h-screen">
-      <div v-if="!loggedIn" class="w-full max-w-md p-6 bg-white rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Login</h1>
-        <input v-model="username" type="text" placeholder="Username"
-               class="w-full p-2 mb-3 border rounded" />
-        <input v-model="password" type="password" placeholder="Password"
-               class="w-full p-2 mb-3 border rounded" />
-        <button @click="login"
-                class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
-          Login
-        </button>
-        <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
-      </div>
+    <!-- Main Content -->
+    <main class="flex flex-1 items-center justify-center px-4">
+      <!-- Login Card -->
+      <transition name="fade" mode="out-in">
+        <div v-if="!loggedIn" key="login" class="w-full max-w-md bg-white rounded-xl shadow-xl p-8 transform transition hover:scale-[1.01]">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Sign In</h1>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
+              <input v-model="username" type="text"
+                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+              <input v-model="password" type="password"
+                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+            </div>
+            <button @click="login"
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition transform hover:scale-105">
+              Login
+            </button>
+            <p v-if="error" class="text-red-500 text-sm text-center mt-2">{{ error }}</p>
+          </div>
+        </div>
 
-      <div v-else class="w-full max-w-lg p-6 bg-white rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Profile Page</h1>
-        <p class="text-gray-700 mb-4">You are logged in as <strong>{{ username }}</strong>.</p>
-        <button @click="fetchProtected"
-                class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
-          Access Protected Route
-        </button>
-        <p v-if="message" class="mt-4 text-gray-700">{{ message }}</p>
-      </div>
-    </div>
+        <!-- Profile Card -->
+        <div v-else key="profile" class="w-full max-w-lg bg-white rounded-xl shadow-xl p-8 transform transition hover:scale-[1.01]">
+          <h1 class="text-3xl font-bold text-gray-800 mb-4">Profile</h1>
+          <p class="text-gray-600 mb-6">You are logged in as <strong>{{ username }}</strong>.</p>
+          <button @click="fetchProtected"
+                  class="bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition transform hover:scale-105">
+            Access Protected Route
+          </button>
+          <p v-if="message" class="mt-4 text-gray-700">{{ message }}</p>
+        </div>
+      </transition>
+    </main>
   </div>
 
+  <!-- Vue App -->
   <script>
     const { createApp } = Vue
     createApp({
@@ -55,7 +75,6 @@
         }
       },
       async mounted() {
-        // Check session on page load
         const res = await fetch("/session", { credentials: "include" })
         if (res.ok) {
           const data = await res.json()
@@ -102,5 +121,16 @@
       }
     }).mount('#app')
   </script>
+
+  <!-- Tailwind Transition Styles -->
+  <style>
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  </style>
 </body>
 </html>
