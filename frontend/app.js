@@ -188,60 +188,50 @@ const StorePage = {
       </section>
 
       <!-- FULL-HEIGHT LOCATION SECTION -->
-<!-- LOCATION SECTION FULL WIDTH -->
-<section class="w-full flex flex-col md:flex-row bg-pink-50">
+      <section class="w-full flex flex-col md:flex-row bg-pink-50">
 
-  <!-- INFO PANEL 40% LEFT -->
-  <div class="md:w-2/5 flex flex-col gap-6 p-8 md:p-12">
-    <h2 class="text-3xl md:text-4xl font-bold text-purple-700 mb-2">Visit {{ formattedStoreName }}</h2>
-    <p class="text-gray-700 mb-4">
-      Come visit us! Here’s how you can find us easily:
-    </p>
+        <!-- INFO PANEL 40% LEFT -->
+        <div class="md:w-2/5 flex flex-col gap-6 p-8 md:p-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-purple-700 mb-2">Visit {{ formattedStoreName }}</h2>
+          <p class="text-gray-700 mb-4">
+            Come visit us! Here’s how you can find us easily:
+          </p>
 
-    <div>
-      <p class="font-semibold text-gray-700">Address:</p>
-      <p class="text-gray-600">123 Main St, Your City, Your Country</p>
-    </div>
+          <div>
+            <p class="font-semibold text-gray-700">Address:</p>
+            <p class="text-gray-600">123 Main St, Your City, Your Country</p>
+          </div>
 
-    <div>
-      <p class="font-semibold text-gray-700">Phone:</p>
-      <a href="tel:+1234567890" class="text-pink-500 hover:underline">+1 234 567 890</a>
-    </div>
+          <div>
+            <p class="font-semibold text-gray-700">Phone:</p>
+            <a href="tel:+1234567890" class="text-pink-500 hover:underline">+1 234 567 890</a>
+          </div>
 
-    <div>
-      <p class="font-semibold text-gray-700">Opening Hours:</p>
-      <p class="text-gray-600">Mon-Fri: 10:00 AM - 10:00 PM</p>
-      <p class="text-gray-600">Sat-Sun: 9:00 AM - 11:00 PM</p>
-    </div>
+          <div>
+            <p class="font-semibold text-gray-700">Opening Hours:</p>
+            <p class="text-gray-600">Mon-Fri: 10:00 AM - 10:00 PM</p>
+            <p class="text-gray-600">Sat-Sun: 9:00 AM - 11:00 PM</p>
+          </div>
 
-    <router-link
-      :to="'/' + storeName + '/menu'"
-      class="mt-4 px-6 py-3 rounded-xl bg-pink-200 text-pink-900 font-semibold shadow hover:bg-pink-300 transition text-center"
-    >
-      🍽 View Menu
-    </router-link>
-  </div>
+          <router-link
+            :to="'/' + storeName + '/menu'"
+            class="mt-4 px-6 py-3 rounded-xl bg-pink-200 text-pink-900 font-semibold shadow hover:bg-pink-300 transition text-center"
+          >
+            🍽 View Menu
+          </router-link>
+        </div>
 
-  <!-- MAP 60% RIGHT -->
-  <div class="md:w-3/5 h-[500px] md:h-auto md:flex-1">
-    <iframe
-      class="w-full h-full border-0 object-cover"
-      loading="lazy"
-      allowfullscreen
-      referrerpolicy="no-referrer-when-downgrade"
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3858.2215438846383!2d121.04142677683808!3d14.756544785748506!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b10060d3e649%3A0x7f71cb56180acae7!2sKai%20Mall!5e0!3m2!1sen!2sph!4v1770271204721!5m2!1sen!2sph">
-    </iframe>
-  </div>
-
-</section>
-
-
-
-
-
-
-
-
+        <!-- MAP 60% RIGHT -->
+        <div class="md:w-3/5 h-[500px] md:h-auto md:flex-1">
+          <iframe
+            class="w-full h-full border-0 object-cover"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3858.2215438846383!2d121.04142677683808!3d14.756544785748506!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b10060d3e649%3A0x7f71cb56180acae7!2sKai%20Mall!5e0!3m2!1sen!2sph!4v1770271204721!5m2!1sen!2sph">
+          </iframe>
+        </div>
+      </section>
 
       <!-- FOOTER -->
       <footer class="bg-purple-50 text-purple-900 py-10 text-center">
