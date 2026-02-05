@@ -136,7 +136,7 @@ const StorePage = {
 
         <div class="mt-10">
           <router-link
-            :to="'/' + storeName + '/menu'"
+            :to="'/s/' + storeName + '/menu'"
             class="px-10 py-4 rounded-xl bg-pink-200 text-pink-900 font-semibold shadow hover:bg-pink-300 transition"
           >
             🍽 View Menu
@@ -319,7 +319,7 @@ const MenuPage = {
   },
   async mounted() {
     try {
-      const res = await fetch(`/${this.storeName}/menulist`, { credentials: "include" })
+      const res = await fetch(`/s/${this.storeName}/menulist`, { credentials: "include" })
       const data = await res.json()
       this.menu = data.menu
     } catch (err) {
@@ -333,8 +333,8 @@ const MenuPage = {
 const routes = [
   { path: '/', component: LoginPage },
   { path: '/dashboard', component: DashboardPage }, // protected
-  { path: '/:store_name', component: StorePage }, // public
-  { path: '/:store_name/menu', component: MenuPage } // public
+  { path: '/s/:store_name', component: StorePage }, // public
+  { path: '/s/:store_name/menu', component: MenuPage } // public
 ]
 
 const router = createRouter({
@@ -367,7 +367,9 @@ const app = createApp({
   data() {
     return {
       loggedIn: false,
-      username: ""
+      username: "",
+      storeName: "My Restaurant",   // later you can load this from API
+      dropdownOpen: false
     }
   },
   methods: {
@@ -385,6 +387,13 @@ const app = createApp({
       } catch (err) {
         console.error("Session check failed:", err)
       }
+    },
+    logout() {
+      // call backend logout if you have one
+      fetch("/logout", { method: "POST", credentials: "include" })
+      this.loggedIn = false
+      this.username = ""
+      this.$router.push("/login")
     }
   },
   mounted() {
@@ -392,14 +401,66 @@ const app = createApp({
   },
   template: `
     <div>
-      <nav v-if="loggedIn" class="bg-indigo-600 text-white px-4 py-2 flex justify-between">
-        <span>Welcome, {{ username }}</span>
-        <router-link to="/dashboard" class="underline">Dashboard</router-link>
+      <nav v-if="loggedIn" class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4">
+          <div class="flex justify-between items-center h-16">
+
+            <!-- Left Side -->
+            <div class="flex items-center space-x-8">
+              <span class="text-xl font-bold text-indigo-600">
+                {{ storeName }}
+              </span>
+
+              <div class="hidden md:flex items-center space-x-6 text-gray-600 font-medium">
+                <router-link to="/dashboard" class="hover:text-indigo-600 transition">
+                  Dashboard
+                </router-link>
+                <router-link to="/reports" class="hover:text-indigo-600 transition">
+                  Reports
+                </router-link>
+                <router-link to="/orders" class="hover:text-indigo-600 transition">
+                  View Orders
+                </router-link>
+              </div>
+            </div>
+
+            <!-- Right Side User Dropdown -->
+            <div class="relative">
+              <button @click="dropdownOpen = !dropdownOpen"
+                class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition">
+                <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div v-if="dropdownOpen"
+                class="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-lg py-2 z-50">
+                <router-link to="/profile"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Profile
+                </router-link>
+                <router-link to="/settings"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Settings
+                </router-link>
+                <button @click="logout"
+                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                  Logout
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </nav>
+
       <router-view></router-view>
     </div>
   `
 })
+
 
 app.use(router)
 app.mount('#app')

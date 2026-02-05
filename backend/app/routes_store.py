@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 import os
 
-router = APIRouter(tags=["store"])
+router = APIRouter(prefix="/s", tags=["store"])
 
 @router.get("/{store_name}")
 def get_store(store_name: str):
