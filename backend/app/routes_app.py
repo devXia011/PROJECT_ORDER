@@ -9,3 +9,9 @@ router = APIRouter()
 def get_store(store_name: str):
     # Always serve index.html, Vue will handle rendering
     return FileResponse(os.path.join("frontend", "index.html"))
+
+
+@router.get("/reports")
+def get_store(store_name: str):
+    # Always serve index.html, Vue will handle rendering
+    return FileResponse(os.path.join("frontend", "index.html"))

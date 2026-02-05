@@ -335,28 +335,42 @@ const routes = [
   { path: '/s/:store_name/menu', component: MenuPage } // public
 ]
 
+// --- Router Setup ---
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
-// --- Navigation Guard (only protect dashboard) ---
+// --- Navigation Guard ---
 router.beforeEach(async (to, from, next) => {
-  if (to.path === "/" || to.path.startsWith("/s")) {
-    next() // login and store/menu are public
-    return
-  }
-
-  if (to.path === "/dashboard") {
+  try {
+    // Only check session if the route requires auth
     const res = await fetch("/session", { credentials: "include" })
     const data = await res.json()
-    if (!data.authenticated) {
-      next("/") // redirect to login if not authenticated
-    } else {
-      next()
+    const isAuth = data.authenticated
+
+    // 🌍 PUBLIC ROUTES
+    const isPublic =
+      to.path === "/" ||
+      to.path === "/login" ||
+      to.path.startsWith("/s")
+
+    // 🔐 If NOT logged in and trying to access a protected page → go to login
+    if (!isAuth && !isPublic) {
+      return next("/login")
     }
-  } else {
+
+    // 🔁 If logged in and trying to access login/home → go to dashboard
+    if (isAuth && (to.path === "/" || to.path === "/login")) {
+      return next("/dashboard")
+    }
+
+    // Otherwise allow
     next()
+
+  } catch (err) {
+    console.error("Session check failed:", err)
+    next("/login") // fallback safety
   }
 })
 
@@ -366,7 +380,7 @@ const app = createApp({
     return {
       loggedIn: false,
       username: "",
-      storeName: "My Restaurant",   // later you can load this from API
+      storeName: "My Restaurant",
       dropdownOpen: false
     }
   },
@@ -384,14 +398,20 @@ const app = createApp({
         }
       } catch (err) {
         console.error("Session check failed:", err)
+        this.loggedIn = false
+        this.username = ""
       }
     },
-    logout() {
-      // call backend logout if you have one
-      fetch("/logout", { method: "POST", credentials: "include" })
-      this.loggedIn = false
-      this.username = ""
-      this.$router.push("/")
+    async logout() {
+      try {
+        await fetch("/logout", { method: "POST", credentials: "include" })
+      } catch (err) {
+        console.error("Logout failed:", err)
+      } finally {
+        this.loggedIn = false
+        this.username = ""
+        this.$router.push("/") // redirect explicitly after logout
+      }
     }
   },
   mounted() {

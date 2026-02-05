@@ -69,13 +69,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), response: Response =
 def logout(response: Response):
     response.delete_cookie("access_token")
     response.delete_cookie("csrf_token")
+    response.delete_cookie("session")
     return {"message": "Logged out"}
+
 
 @router.post("/protected")
 def protected_route(request: Request):
     token = request.cookies.get("access_token")
     csrf_cookie = request.cookies.get("csrf_token")
     csrf_header = request.headers.get("X-CSRF-Token")
+    
 
     if not token or not csrf_cookie or csrf_cookie != csrf_header:
         raise HTTPException(status_code=403, detail="CSRF validation failed")

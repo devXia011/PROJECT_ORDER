@@ -3,11 +3,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.app import routes_auth, routes_store, routes_app
 import os
+import pathlib
 
 app = FastAPI()
 
 # Serve static assets (JS, CSS, images) under /static
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+
 
 
 # DEV: disbables caching for static files to ensure latest versions are always loaded
@@ -42,3 +45,4 @@ app.include_router(routes_store.router)
 app.include_router(routes_auth.router)
 
 app.include_router(routes_app.router)
+
