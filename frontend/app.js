@@ -65,11 +65,9 @@ const DashboardPage = {
     <div class="p-6">
       <h1 class="text-2xl font-bold">Dashboard</h1>
       <p>Welcome, {{ username }}! You are authenticated.</p>
-      <router-link to="/demo" class="text-indigo-600 underline block mt-4">
+      <router-link to="/s/demo" class="text-indigo-600 underline block mt-4">
         Go to Demo Store
       </router-link>
-      <button @click="logout"
-              class="bg-red-500 text-white px-3 py-1 rounded mt-4">Logout</button>
     </div>
   `,
   data() {
@@ -393,7 +391,7 @@ const app = createApp({
       fetch("/logout", { method: "POST", credentials: "include" })
       this.loggedIn = false
       this.username = ""
-      this.$router.push("/login")
+      this.$router.push("/")
     }
   },
   mounted() {

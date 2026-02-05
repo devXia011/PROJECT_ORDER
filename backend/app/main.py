@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from backend.app import routes_auth, routes_store
+from backend.app import routes_auth, routes_store, routes_app
 import os
 
 app = FastAPI()
@@ -36,5 +36,9 @@ def serve_index():
     return FileResponse(os.path.join("frontend", "index.html"))
 
 # Include your API routers
+
+app.include_router(routes_store.router) 
+
 app.include_router(routes_auth.router)
-app.include_router(routes_store.router)
+
+app.include_router(routes_app.router)
