@@ -120,11 +120,21 @@ const MenuPage = {
     </div>
   `,
   data() {
-    return { menu: ["Coffee", "Sandwich", "Salad"] }
+    return { menu: [] }
   },
   computed: {
     storeName() {
       return this.$route.params.store_name
+    }
+  },
+  async mounted() {
+    try {
+      const res = await fetch(`/${this.storeName}/menulist`, { credentials: "include" })
+      const data = await res.json()
+      this.menu = data.menu
+    } catch (err) {
+      console.error("Failed to load menu:", err)
+      this.menu = ["Error loading menu"]
     }
   }
 }
