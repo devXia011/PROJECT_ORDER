@@ -3,7 +3,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from backend.app import routes_auth, routes_store, routes_app
 import os
-import pathlib
 
 app = FastAPI()
 
